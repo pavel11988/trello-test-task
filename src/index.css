@@ -6,8 +6,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-image: url('./images/backgroundD2.jpg');
+  background-size: cover;
   background-repeat: repeat;
-  
 
 }
 
