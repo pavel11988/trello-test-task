@@ -1,5 +1,6 @@
 import Board from "../Board/Board";
 import { BoardsContext } from "./Boards.styled";
+import PropTypes from "prop-types";
 
 const Boards = ({
   boards,
@@ -30,6 +31,22 @@ const Boards = ({
       })}
     </BoardsContext>
   );
+};
+
+Boards.propTypes = {
+  boards: PropTypes.objectOf(
+    PropTypes.shape({
+      name: PropTypes.string,
+      items: PropTypes.arrayOf(PropTypes.object),
+    })
+  ),
+  handleAddSubmit: PropTypes.func,
+  newItemToProcess: PropTypes.string,
+  newItemToDone: PropTypes.string,
+  handleAddChange: PropTypes.func,
+  handleDeleteSubmit: PropTypes.func,
+  handleEditSet: PropTypes.func,
+  onDragEnd: PropTypes.func,
 };
 
 export default Boards;

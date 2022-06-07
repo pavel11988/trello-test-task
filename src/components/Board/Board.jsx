@@ -1,6 +1,7 @@
 import { BoardContainer, BoardTitle, BoardBody } from "./Board.styled";
 import Task from "../Task/Task";
 import CreateForm from "../CreateForm/CreateForm";
+import PropTypes from "prop-types";
 
 const Board = ({
   id,
@@ -67,6 +68,20 @@ const Board = ({
       />
     </BoardContainer>
   );
+};
+
+Board.propTypes = {
+  id: PropTypes.string,
+  board: PropTypes.exact({
+    name: PropTypes.string,
+    items: PropTypes.array,
+  }),
+  handleDeleteSubmit: PropTypes.func,
+  handleEditSet: PropTypes.func,
+  handleAddSubmit: PropTypes.func,
+  newItemToProcess: PropTypes.string,
+  newItemToDone: PropTypes.string,
+  handleAddChange: PropTypes.func,
 };
 
 export default Board;

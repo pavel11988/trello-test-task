@@ -1,5 +1,6 @@
 import { AddForm, AddInput, AddButton } from "../CreateForm/CreacteForm.styled";
 import { ReactComponent as AddIcon } from "../../images/add.svg";
+import PropTypes from "prop-types";
 
 const CreateForm = ({
   board,
@@ -25,6 +26,17 @@ const CreateForm = ({
       <AddButton type="submit">{<AddIcon fill={"#3c3d3d"} />}</AddButton>
     </AddForm>
   );
+};
+
+CreateForm.propTypes = {
+  board: PropTypes.shape({
+    name: PropTypes.string,
+    items: PropTypes.array,
+  }),
+  handleAddSubmit: PropTypes.func,
+  newItemToProcess: PropTypes.string,
+  newItemToDone: PropTypes.string,
+  handleAddChange: PropTypes.func,
 };
 
 export default CreateForm;

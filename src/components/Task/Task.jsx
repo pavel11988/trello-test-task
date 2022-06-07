@@ -1,5 +1,6 @@
 import { ReactComponent as DeleteIcon } from "../../images/delete.svg";
 import { ReactComponent as EditIcon } from "../../images/edit.svg";
+import PropTypes from "prop-types";
 
 import {
   TaskContainer,
@@ -39,6 +40,20 @@ const Task = ({ index, handleDeleteSubmit, handleEditSet, board, item }) => {
       }}
     </TaskContainer>
   );
+};
+
+Task.propTypes = {
+  index: PropTypes.number,
+  handleDeleteSubmit: PropTypes.func,
+  handleEditSet: PropTypes.func,
+  board: PropTypes.shape({
+    name: PropTypes.string,
+    items: PropTypes.array,
+  }),
+  item: PropTypes.shape({
+    name: PropTypes.string,
+    content: PropTypes.string,
+  }),
 };
 
 export default Task;
