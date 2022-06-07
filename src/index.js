@@ -11,9 +11,11 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 function KeyPress(e) {
   const evtobj = e;
   if (evtobj.keyCode === 90 && evtobj.ctrlKey) {
+    evtobj.preventDefault();
     store.dispatch(actions.undo());
   }
   if (evtobj.keyCode === 89 && evtobj.ctrlKey) {
+    evtobj.preventDefault();
     store.dispatch(actions.redo());
   }
 }
