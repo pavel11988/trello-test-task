@@ -1,5 +1,6 @@
 import { nanoid } from "nanoid";
 import { useEffect } from "react";
+import toast, { Toaster } from "react-hot-toast";
 
 import { useState } from "react";
 import { useDispatch } from "react-redux";
@@ -60,7 +61,7 @@ function App() {
 
     if (name === "In process") {
       if (newItemToProcess === "") {
-        alert("Empty filed");
+        toast.error("The input field is empty!");
         return;
       }
       newItem = {
@@ -74,7 +75,7 @@ function App() {
 
     if (name === "Done") {
       if (newItemToDone === "") {
-        alert("Empty filed");
+        toast.error("The input field is empty!");
         return;
       }
       newItem = {
@@ -88,6 +89,7 @@ function App() {
 
     function AddTask(boards, task, currentBoardName) {
       dispatch(actions.addTask(boards, task, currentBoardName));
+      toast.success("New task created!");
     }
   };
   //================
@@ -99,6 +101,12 @@ function App() {
     const currentTaskId = item.id;
     const currentBoardName = board.name;
     dispatch(actions.deleteTask(boards, currentTaskId, currentBoardName));
+    toast.success("Task deleted!", {
+      iconTheme: {
+        primary: "#9c0202",
+        secondary: "#FFFAEE",
+      },
+    });
   };
   //================
 
@@ -128,10 +136,16 @@ function App() {
     const currentBoardName = editItem.currentBoard.name;
 
     if (taskContent.trim() === "") {
-      alert("Field is empty");
+      toast.error("The input field is empty!");
       return;
     } else {
       dispatch(actions.editTask(boards, editItem, currentBoardName));
+      toast.success("Task changed!", {
+        iconTheme: {
+          primary: "#1d35a0",
+          secondary: "#FFFAEE",
+        },
+      });
     }
 
     setEditorView(false);
@@ -165,6 +179,8 @@ function App() {
           editItem={editItem}
         />
       )}
+      ``
+      <Toaster position="top-right" reverseOrder={true} />
     </AppContainer>
   );
 }
