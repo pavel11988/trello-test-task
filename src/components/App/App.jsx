@@ -179,7 +179,7 @@ function App() {
           editItem={editItem}
         />
       )}
-      ``
+
       <Toaster position="top-right" reverseOrder={true} />
     </AppContainer>
   );
