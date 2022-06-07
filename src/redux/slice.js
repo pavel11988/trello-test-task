@@ -1,122 +1,92 @@
 import { createReducer, current } from "@reduxjs/toolkit";
 import actions from "./actions";
-
 import { nanoid } from "nanoid";
 
-// в inital state добавим пустые объекты как историю для перемещения назад-вперёд.
-// (почему забиваем пустыми объектам? - из-за того, что мы юзаем библиотеку для перемещения,
-// в котрой при доавблении в стейт нового объекта происходит быстрый "флеш" предыдущего обхекта
-// стейта. Если стейт заполнен( сразу или по мере его заполенения - у нас 10 объектов),
-// тогда флеш пропадает.
-// Это небольшой баг библиотеки с которым я столкнулся уже в конце работы...
-// По мере добавления, удаления, измененения или предвижения элементов - в массив стейт
-// будут добавляться новые объекты с обновлёнными досками, которые по индексу мы можем
-// выбрать. Ограничим стейт (историю) 10-ю шагами, чтобы сильно не забивать состояние.
-// Если нету отмены/возобновления последнего действия - это не нужно
-let initialState = [
-  // {},
-  // {},
-  // {},
-  // {},
-  // {},
-  // {},
-  // {},
-  // {},
-  // {},
-  {
-    [nanoid()]: {
-      name: "In process",
-      items: [],
+let initialState = {
+  boards: [
+    {
+      [nanoid()]: {
+        name: "In process",
+        items: [],
+      },
+      [nanoid()]: {
+        name: "Done",
+        items: [],
+      },
     },
-    [nanoid()]: {
-      name: "Done",
-      items: [],
-    },
-  },
-];
+  ],
+  currentIndex: 0,
+};
 
 const tasksReducer = createReducer(initialState, {
   [actions.addTask]: (state, { payload }) => {
-    const currentState = current(state);
+    //Переменные для удобства
+    const payloadBoards = payload.boards;
+    const payloadTask = payload.newTask;
+    const payloadCurrentBoard = payload.currentBoardName;
 
-    let newStateItem = {};
+    let newItemToBoards = {};
+    newItemToBoards = JSON.parse(JSON.stringify(payloadBoards));
 
-    newStateItem = JSON.parse(JSON.stringify(payload.boards));
-
-    Object.entries(newStateItem).map((board) => {
-      if (board[1].name === payload.currentBoardName) {
-        board[1].items.push(payload.newTask);
+    Object.entries(newItemToBoards).map((board) => {
+      if (board[1].name === payloadCurrentBoard) {
+        board[1].items.push(payloadTask);
       }
       return board;
     });
 
-    if (currentState.length >= 10) {
-      state.push(newStateItem);
-      state.shift();
-    } else {
-      state.push(newStateItem);
-    }
+    state.boards.push(newItemToBoards);
+    state.currentIndex = state.boards.length - 1;
 
     return state;
   },
-
   [actions.deleteTask]: (state, { payload }) => {
-    const currentState = current(state);
-    const { currentBoardName, currentTaskId } = payload;
-    let newStateItem = {};
-    newStateItem = JSON.parse(
-      JSON.stringify(currentState[currentState.length - 1])
-    );
+    const payloadBoards = payload.boards;
+    const payloadCurrentTaskId = payload.currentTaskId;
+    const payloadCurrentBoard = payload.currentBoardName;
 
-    Object.entries(newStateItem).map((board) => {
-      if (board[1].name === currentBoardName) {
+    let newItemToBoards = {};
+    newItemToBoards = JSON.parse(JSON.stringify(payloadBoards));
+
+    Object.entries(newItemToBoards).map((board) => {
+      if (board[1].name === payloadCurrentBoard) {
         board[1].items = board[1].items.filter(
-          (item) => item.id !== currentTaskId
+          (item) => item.id !== payloadCurrentTaskId
         );
       }
       return board;
     });
 
-    if (currentState.length >= 10) {
-      state.push(newStateItem);
-      state.shift();
-    } else {
-      state.push(newStateItem);
-    }
-
+    state.boards.push(newItemToBoards);
+    state.currentIndex = state.boards.length - 1;
     return state;
   },
-
   [actions.editTask]: (state, { payload }) => {
-    const currentState = current(state);
-    const { taskContent, taskId, currentBoard } = payload;
-    let newStateItem = {};
-    newStateItem = JSON.parse(
-      JSON.stringify(currentState[currentState.length - 1])
-    );
-    Object.entries(newStateItem).map((board) => {
-      if (board[1].name === currentBoard.name) {
+    const payloadBoards = payload.boards;
+    const payloadCurrentTaskId = payload.editItem.id;
+    const payloadCurrentTaskContent = payload.editItem.content;
+    const payloadCurrentBoardName = payload.currentBoardName;
+
+    let newItemToBoards = {};
+    newItemToBoards = JSON.parse(JSON.stringify(payloadBoards));
+
+    Object.entries(newItemToBoards).map((board) => {
+      if (board[1].name === payloadCurrentBoardName) {
         board[1].items.map((item) => {
-          if (item.id === taskId) {
-            item.content = taskContent;
+          if (item.id === payloadCurrentTaskId) {
+            item.content = payloadCurrentTaskContent;
           }
-          return board;
         });
       }
       return board;
     });
-    if (currentState.length >= 10) {
-      state.push(newStateItem);
-      state.shift();
-    } else {
-      state.push(newStateItem);
-    }
+
+    state.boards.push(newItemToBoards);
+    state.currentIndex = state.boards.length - 1;
 
     return state;
   },
-
   [actions.moveTask]: (state, { payload }) => {
-    const currentState = current(state);
     const { result, boards } = payload;
     const { source, destination } = result;
     if (!result.destination) return;
@@ -132,12 +102,10 @@ const tasksReducer = createReducer(initialState, {
       const [removed] = sourceItems.splice(source.index, 1); // Объект карточки которую перенесли удаляеи с списка карточек текущей доски
       destinationItems.splice(destination.index, 0, removed); // Вставляем ту карточку, которую удалили с первой доски во вторую без замены
 
-      let newStateItem = {};
-      newStateItem = JSON.parse(
-        JSON.stringify(currentState[currentState.length - 1])
-      );
+      let newItemToBoards = {};
+      newItemToBoards = JSON.parse(JSON.stringify(payload.boards));
 
-      Object.entries(newStateItem).map((board) => {
+      Object.entries(newItemToBoards).map((board) => {
         if (board[1].name === sourceBoard.name) {
           board[1].items = sourceItems;
         }
@@ -146,13 +114,10 @@ const tasksReducer = createReducer(initialState, {
         }
         return board;
       });
+      state.boards.push(newItemToBoards);
+      state.currentIndex = state.boards.length - 1;
 
-      if (currentState.length >= 10) {
-        state.push(newStateItem);
-        state.shift();
-      } else {
-        state.push(newStateItem);
-      }
+      return state;
     } else {
       //Если переносим карточку с в пределах одной доски
       const currentMoveBoard = boards[source.droppableId]; // Объект текущей доски
@@ -160,24 +125,42 @@ const tasksReducer = createReducer(initialState, {
       const [removed] = copiedItems.splice(source.index, 1); // записываем "удалённую" (поднятую) карточку
       copiedItems.splice(destination.index, 0, removed); // "удалённую" (поднятую) карточку вставляем в то место, куда укажем (по индексу)
 
-      let newStateItem = {};
-      newStateItem = JSON.parse(
-        JSON.stringify(currentState[currentState.length - 1])
-      );
-      Object.entries(newStateItem).map((board) => {
+      let newItemToBoards = {};
+      newItemToBoards = JSON.parse(JSON.stringify(payload.boards));
+      Object.entries(newItemToBoards).map((board) => {
         if (board[1].name === currentMoveBoard.name) {
           board[1].items = copiedItems;
         }
         return board;
       });
+      state.boards.push(newItemToBoards);
+      state.currentIndex = state.currentIndex + 1;
 
-      if (currentState.length >= 10) {
-        state.push(newStateItem);
-        state.shift();
-      } else {
-        state.push(newStateItem);
-      }
+      return state;
     }
+  },
+
+  [actions.undo]: (state) => {
+    const currentState = current(state);
+    let newCurrentIndex;
+    if (currentState.currentIndex > 0) {
+      newCurrentIndex = currentState.currentIndex - 1;
+    } else {
+      newCurrentIndex = currentState.currentIndex;
+    }
+    state.currentIndex = newCurrentIndex;
+    return state;
+  },
+
+  [actions.redo]: (state) => {
+    const currentState = current(state);
+    let newCurrentIndex;
+    if (currentState.currentIndex < currentState.boards.length - 1) {
+      newCurrentIndex = currentState.currentIndex + 1;
+    } else {
+      newCurrentIndex = currentState.currentIndex;
+    }
+    state.currentIndex = newCurrentIndex;
     return state;
   },
 });

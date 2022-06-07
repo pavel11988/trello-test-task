@@ -13,8 +13,9 @@ const addTask = createAction(
 
 const deleteTask = createAction(
   "tasks/deleteTask",
-  (currentTaskId, currentBoardName) => ({
+  (boards, currentTaskId, currentBoardName) => ({
     payload: {
+      boards,
       currentTaskId,
       currentBoardName,
     },
@@ -23,27 +24,32 @@ const deleteTask = createAction(
 
 const editTask = createAction(
   "tasks/editTask",
-  (taskContent, taskId, currentBoard) => ({
+  (boards, editItem, currentBoardName) => ({
     payload: {
-      taskContent,
-      taskId,
-      currentBoard,
+      boards,
+      editItem,
+      currentBoardName,
     },
   })
 );
 
-const moveTask = createAction("task/moveTask", (result, boards) => ({
+const moveTask = createAction("task/moveTask", (boards, result) => ({
   payload: {
-    result,
     boards,
+    result,
   },
 }));
+
+const undo = createAction("task/undo", () => ({}));
+const redo = createAction("task/redo", () => ({}));
 
 const actions = {
   addTask,
   deleteTask,
   editTask,
   moveTask,
+  undo,
+  redo,
 };
 
 export default actions;
