@@ -76,6 +76,7 @@ const tasksReducer = createReducer(initialState, {
           if (item.id === payloadCurrentTaskId) {
             item.content = payloadCurrentTaskContent;
           }
+          return board;
         });
       }
       return board;
